@@ -25,7 +25,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Show statistics such as fps and timing information
         sceneView.showsStatistics = true
         
-        sceneView.allowsCameraControl = true
+//        sceneView.allowsCameraControl = true
     }
     
     private func importEarth() {
@@ -67,14 +67,30 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             let results = sceneView.hitTest(touchLocation, types: ARHitTestResult.ResultType.existingPlaneUsingExtent)
 
             if let hitResult = results.first {
-                spawnShape()
-//                let vector = SCNVector3(
-//                    hitResult.worldTransform.columns.3.x,
-//                    hitResult.worldTransform.columns.3.y,
-//                    hitResult.worldTransform.columns.3.z
-//                )
+//                createSphere()
+                //                spawnShape()
+                let vector = SCNVector3(
+                    hitResult.worldTransform.columns.3.x,
+                    hitResult.worldTransform.columns.3.y,
+                    hitResult.worldTransform.columns.3.z
+                )
+//
+                
+                createCube()
+                
+                let node1 = createTextNode(string: "Hello")
+                
+                sceneView.scene.rootNode.addChildNode(node1)
+                
+               
 //
 //                importEarth(vector: vector)
+            }
+            
+            let hits = sceneView.hitTest(touchLocation, options: nil)
+            
+            if let tappedNode = hits.first?.node {
+                tappedNode.runAction(SCNAction.rotateBy(x: 0, y: CGFloat(Float.pi * 2), z: 0, duration: 7))
             }
         }
     }
@@ -98,17 +114,32 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         planeNode.transform = SCNMatrix4MakeRotation(-Float.pi / 2, 1, 0, 0)
 //
         let material = SCNMaterial()
-        material.diffuse.contents = UIColor.clear
+        material.diffuse.contents = UIColor.red
 
         plane.materials = [material]
         planeNode.geometry = plane
 
         node.addChildNode(planeNode)
+       
         
-        
-        importEarth(position: position);
+//        importEarth(position: position);
     }
     
+    
+    
+    func createTextNode(string: String) -> SCNNode {
+        let text = SCNText(string: string, extrusionDepth: 0.1)
+        text.font = UIFont.systemFont(ofSize: 1.0)
+        text.flatness = 0.01
+        text.firstMaterial?.diffuse.contents = UIColor.white
+        
+        let textNode = SCNNode(geometry: text)
+        
+        let fontSize = Float(0.04)
+        textNode.scale = SCNVector3(fontSize, fontSize, fontSize)
+        
+        return textNode
+    }
     
     func spawnShape() {
         // 1
@@ -122,6 +153,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 //        }
         // 4
         let geometryNode = SCNNode(geometry: geometry)
+        
+         geometryNode.position = SCNVector3(0, 1, -2)
         
         // 5
         sceneView.scene.rootNode.addChildNode(geometryNode)
